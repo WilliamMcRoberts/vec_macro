@@ -1,18 +1,23 @@
 #[macro_export]
 macro_rules! avec {
     // Create Vector With One Or Many Items
-    ($($element:expr),* $(,)?) => {{
+    ($($element:expr),*) => {{
         #[allow(unused_mut)]
         let mut v = Vec::new();
         $(v.push($element);)*
         v
     }};
 
-    // Create Vector With Repeat Element
+    // Pattern For Trailing Comma
+    ($($element:expr,)*) => {{
+        $crate::avec![$($element),*]
+    }};
+
+    // Pattern For Vector With Repeat Element And Capacity
     ($element:expr; $count:expr) => {{
         let count = $count;
         let mut v = Vec::with_capacity(count);
-        v.extend(std::iter::repeat($element).take(count));
+        v.resize(count, $element);
         v
     }};
 }
@@ -76,6 +81,20 @@ fn fill_non_literal() {
     assert_eq!(v[3], 42);
     assert_eq!(v[4], 42);
 }
+
+// pub struct Dog {
+//     name: String,
+// }
+
+// #[test]
+// fn object() {
+//     let d = Dog {
+//         name: "William".to_owned(),
+//     };
+//     let v: Vec<Dog> = avec![d; 2];
+//     assert!(!v.is_empty());
+//     assert_eq!(v.len(), 2);
+// }
 
 #[test]
 fn trailing() {
