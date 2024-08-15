@@ -1,24 +1,18 @@
 #[macro_export]
 macro_rules! avec {
-    // Create Empty Vector
-    () => {
-        Vec::new()
-    };
-
     // Create Vector With One Or Many Items
-    ($($element:expr),+ $(,)?) => {{
+    ($($element:expr),* $(,)?) => {{
+        #[allow(unused_mut)]
         let mut v = Vec::new();
-        $(v.push($element);)+
+        $(v.push($element);)*
         v
     }};
 
-    // Create Vector With Element To Fill Vector "n" Times
+    // Create Vector With Repeat Element
     ($element:expr; $count:expr) => {{
-        let mut v = Vec::new();
-        let x = $element;
-        for _ in 0..$count {
-            v.push(x.clone());
-        }
+        let count = $count;
+        let mut v = Vec::with_capacity(count);
+        v.extend(std::iter::repeat($element).take(count));
         v
     }};
 }
