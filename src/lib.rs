@@ -2,8 +2,11 @@
 macro_rules! avec {
     // Create Vector With One Or Many Items
     ($($element:expr),*) => {{
+        // Check That Count Is const
+        const C: usize = $crate::count![@COUNT; $($element),*];
+
         #[allow(unused_mut)]
-        let mut v = Vec::new();
+        let mut v = Vec::with_capacity(C);
         $(v.push($element);)*
         v
     }};
@@ -19,6 +22,18 @@ macro_rules! avec {
         v.resize($count, $element);
         v
     }};
+}
+
+#[macro_export]
+#[doc(hidden)]
+macro_rules! count {
+    // Hack To Get Count Of Items
+    (@COUNT; $($element:expr),*) => {
+        <[()]>::len(&[$($crate::count![@SUBST; $element]),*])
+    };
+    (@SUBST; $_element:expr) => {
+        ()
+    };
 }
 
 #[test]
@@ -81,19 +96,23 @@ fn fill_non_literal() {
     assert_eq!(v[4], 42);
 }
 
-// pub struct Dog {
-//     name: String,
-// }
+#[test]
+fn object() {
+    #[derive(Clone)]
+    #[allow(dead_code)]
+    pub struct Dog {
+        name: String,
+    }
 
-// #[test]
-// fn object() {
-//     let d = Dog {
-//         name: "William".to_owned(),
-//     };
-//     let v: Vec<Dog> = avec![d; 2];
-//     assert!(!v.is_empty());
-//     assert_eq!(v.len(), 2);
-// }
+    let d = Dog {
+        name: "William".to_owned(),
+    };
+
+    let v: Vec<Dog> = avec![d; 2];
+
+    assert!(!v.is_empty());
+    assert_eq!(v.len(), 2);
+}
 
 #[test]
 fn trailing() {
