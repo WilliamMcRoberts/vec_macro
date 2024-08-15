@@ -15,9 +15,8 @@ macro_rules! avec {
 
     // Pattern For Vector With Repeat Element And Capacity
     ($element:expr; $count:expr) => {{
-        let count = $count;
-        let mut v = Vec::with_capacity(count);
-        v.resize(count, $element);
+        let mut v = Vec::new();
+        v.resize($count, $element);
         v
     }};
 }
